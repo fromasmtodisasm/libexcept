@@ -16,7 +16,7 @@
 
 #else
 
-#warning Unknown platform - don't know how to use thread-local storage.  \
+#warning Unknown platform - dont know how to use thread-local storage.  \
          exceptions in multithreaded programs may break.
 #define TLS_PREFIX
 
