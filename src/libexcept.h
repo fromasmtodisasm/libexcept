@@ -91,6 +91,7 @@ void __except_remove(ExceptData *data);
 Exception *__except_get_current(void);
 void __exception_free(Exception *exception);
 int __exception_is_a(Exception *exception, ExceptionType *type);
+void __except_bug(char *file, int line);
 
 Exception *__exception_new(ExceptionType *type, void *data, 
                            char *file, int line);
