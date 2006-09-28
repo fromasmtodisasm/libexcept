@@ -23,9 +23,9 @@
 #endif
 
 typedef enum {
-        STACK_UNKNOWN, 
-        STACK_DOWNWARD,       /* Stack grows downward, ie. toward 0 */
-        STACK_UPWARD,         /* Stack grows upward, ie. away from 0 */
+    STACK_UNKNOWN, 
+    STACK_DOWNWARD,       /* Stack grows downward, ie. toward 0 */
+    STACK_UPWARD,         /* Stack grows upward, ie. away from 0 */
 } stack_direction_t;
 
 struct _Exception {
@@ -49,38 +49,42 @@ static TLS_PREFIX Exception *current_exception = NULL;
 
 static stack_direction_t find_stack_direction_2(int *parent_var)
 {
-        int variable;
+    int variable;
 
-        variable = 5;
+    variable = 5;
 
-        if (&variable > parent_var)
-        {
-                return STACK_UPWARD;
-        }
-        else if (&variable < parent_var)
-        {
-                return STACK_DOWNWARD;
-        }
-        else
-        {
-                // This should never happen, except maybe due to some 
-                // strange compiler optimisations.
+    if (&variable > parent_var)
+    {
+        return STACK_UPWARD;
+    }
+    else if (&variable < parent_var)
+    {
+        return STACK_DOWNWARD;
+    }
+    else
+    {
+        // This should never happen, except maybe due to some 
+        // strange compiler optimisations.
 
-                fprintf(stderr, "Unable to determine stack direction!\n");
-                exit(-1);
+        fprintf(stderr, "Unable to determine stack direction!\n");
+        exit(-1);
 
-                return STACK_UNKNOWN;
-        }
+        return STACK_UNKNOWN;
+    }
 }
 
 static stack_direction_t find_stack_direction(void)
 {
-        int variable;
+    int variable;
 
-        variable = 1;
+    variable = 1;
 
-        return find_stack_direction_2(&variable);
+    return find_stack_direction_2(&variable);
 }
+
+/* Called when a bug is detected in the calling program - either because
+ * break or continue was used, or because the programmer screwed up the
+ * stack by using return. */
 
 void __except_bug(char *file, int line)
 {
