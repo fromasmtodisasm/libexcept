@@ -1,9 +1,49 @@
 
+/*
+
+Copyright (c) 2006, Simon Howard 
+All rights reserved. 
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met: 
+
+ * Redistributions of source code must retain the above copyright notice, 
+   this list of conditions and the following disclaimer. 
+ * Redistributions in binary form must reproduce the above copyright 
+   notice, this list of conditions and the following disclaimer in the 
+   documentation and/or other materials provided with the distribution. 
+ * Neither the name of the libexcept project nor the names of its 
+   contributors may be used to endorse or promote products derived from 
+   this software without specific prior written permission. 
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGE. 
+
+ */
+
+
 #ifndef LIBEXCEPT_H
 #define LIBEXCEPT_H
 
 #include <setjmp.h>
- 
+
+/* Enabling this checks the stack for corruption as a result of 
+ * incorrect usage of the library; for example, use of break,
+ * continue, goto or return to break out of the exception block.
+ * However, doing so uses more CPU.  For extra speed, disable
+ * this define.  It should probably be left on most of the time. */
+
+#define EXCEPT_CHECK_STACK 1
+
 typedef struct _ExceptionType ExceptionType;
 typedef struct _Exception Exception;
 typedef struct _ExceptData ExceptData;
@@ -18,6 +58,10 @@ struct _ExceptionType {
 };
 
 #define EXCEPTION_TYPE(parent)  { &(parent) }
+
+#ifdef EXCEPT_CHECK_STACK
+
+/* Check the stack for corruption */
 
 #define EXCEPT_LOOP_GUARD_START                                         \
     {                                                                   \
@@ -34,6 +78,15 @@ struct _ExceptionType {
             __except_bug(__FILE__, __LINE__);                           \
         }                                                               \
     }
+
+#else
+
+/* Stack checking disabled. */
+
+#define EXCEPT_LOOP_GUARD_START
+#define EXCEPT_LOOP_GUARD_END
+
+#endif
 
 #define except_try                                                      \
     {                                                                   \
@@ -95,6 +148,7 @@ void __except_bug(char *file, int line);
 
 Exception *__exception_new(ExceptionType *type, void *data, 
                            char *file, int line);
+
 #define exception_new(type, data)                                       \
       __exception_new(&(type), (data), __FILE__, __LINE__)
 ExceptionType *exception_get_type(Exception *exception);
