@@ -71,11 +71,7 @@ typedef struct _ExceptionType ExceptionType;
 typedef struct _Exception Exception;
 
 typedef struct _ExceptData ExceptData;
-
-struct _ExceptData {
-    jmp_buf jmp_location;
-    ExceptData *next;
-};
+typedef struct _ExceptCatchBlock ExceptCatchBlock;
 
 struct _ExceptionType {
     ExceptionType *parent;
@@ -112,50 +108,105 @@ struct _ExceptionType {
 
 #endif
 
+/* Maximum number of catch blocks after a try {} block. */
+
+#define EXCEPT_MAX_CATCH_BLOCKS 5
+
+struct _ExceptCatchBlock {
+    jmp_buf jmp_location;
+    ExceptionType *type;
+};
+
+struct _ExceptData {
+    jmp_buf try_block;
+    ExceptCatchBlock catch_blocks[EXCEPT_MAX_CATCH_BLOCKS];
+    jmp_buf finally_block;
+    unsigned char num_catch_blocks;
+    ExceptData *next;
+};
+
+
 #define except_try                                                      \
     {                                                                   \
         EXCEPT_LOOP_GUARD_START                                         \
         ExceptData __except_data;                                       \
-        int __except_throwing;                                          \
-        int __except_caught = 0;                                        \
-        Exception *__except_exception = 0;                              \
-        __except_add(&__except_data, __FILE__, __LINE__);               \
-        __except_throwing = setjmp(__except_data.jmp_location);         \
-        if (__except_throwing) {                                        \
-            __except_exception = __except_get_current();                \
-        } else {
+        Exception *__except_caught = (void *) 0;                        \
+        int __except_rethrow = 0;                                       \
+        int __except_setup = 1;                                         \
+        int __except_have_finally = 0;                                  \
+                                                                        \
+        __except_data.num_catch_blocks = 0;                             \
+                                                                        \
+        if (setjmp(__except_data.try_block)) {                          \
+                {
+            
 
-#define except_catch(type, var)                                         \
+#define except_catch(extype, var)                                       \
+                }                                                       \
         }                                                               \
-        __except_remove(&__except_data);                                \
-        if (__except_throwing && !__except_caught                       \
-         && __exception_is_a(__except_exception, &(type))) {            \
-            Exception *(var);                                           \
-            (var) = __except_exception;                                 \
-            __except_caught = 1;
+                                                                        \
+        if (__except_setup) {                                           \
+                ExceptCatchBlock *block;                                \
+                block = &__except_data.catch_blocks[__except_data.num_catch_blocks]; \
+                block->type = &(extype);                                \
+                ++__except_data.num_catch_blocks;                       \
+                if (setjmp(block->jmp_location)) {                      \
+                        Exception *var = __except_get_current();        \
+                        __except_caught = var;                          \
+                        __except_data.num_catch_blocks = 0;
+
+#define __except_cleanup                                                \
+        __except_remove(&__except_data, __FILE__, __LINE__);            \
+        /* if we caught an exception, now we have to free it.           \
+         * BUT! if we caught an exception and then threw an exception   \
+         * inside the catch {} block, things are complicated.           \
+         * If we are rethrowing the same exception, don't free it. */   \
+        if (__except_caught) {                                          \
+                if (!__except_rethrow                                   \
+                 || (__except_caught != __except_get_current())) {      \
+                        exception_free(__except_caught);                \
+                }                                                       \
+        }                                                               \
 
 #define except_finally                                                  \
+                }                                                       \
         }                                                               \
-        __except_remove(&__except_data);                                \
-        /* always do this */                                            \
-        {
+                                                                        \
+        __except_have_finally = 1;                                      \
+                                                                        \
+        if (!__except_setup                                             \
+         || (__except_rethrow = setjmp(__except_data.finally_block))) { \
+                {                                                       \
+                        __except_cleanup
             
 #define except_end                                                      \
+                }                                                       \
         }                                                               \
-        __except_remove(&__except_data);                                \
-        if (__except_caught) {                                          \
-            /* we caught the exception; now free it */                  \
-            exception_free(__except_exception);                         \
-        } else if (__except_throwing) {                                 \
-            /* exception was not caught; rethrow it */                  \
-            except_throw(__except_exception);                           \
+                                                                        \
+        /* if we have no finally {} block, create one to do basic       \
+         * cleanup. */                                                  \
+        if (!__except_have_finally) {                                   \
+                if (!__except_setup                                     \
+                 || (__except_rethrow = setjmp(__except_data.finally_block))) {\
+                        __except_cleanup                                \
+                }                                                       \
+        }                                                               \
+                                                                        \
+        if (__except_setup) {                                           \
+                __except_setup = 0;                                     \
+                __except_add(&__except_data, __FILE__, __LINE__);       \
+                longjmp(__except_data.try_block, 1);                    \
+        } else if (__except_rethrow) {                                  \
+                /* if we jumped to a finally block, then                \
+                 * we must rethrow the current exception */             \
+                except_throw(__except_get_current());                   \
         }                                                               \
         EXCEPT_LOOP_GUARD_END                                           \
     } 
 
 
 void __except_add(ExceptData *data, char *file, int line);
-void __except_remove(ExceptData *data);
+void __except_remove(ExceptData *data, char *file, int line);
 Exception *__except_get_current(void);
 int __exception_is_a(Exception *exception, ExceptionType *type);
 void __except_bug(char *file, int line);

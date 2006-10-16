@@ -164,11 +164,13 @@ void __except_add(ExceptData *data, char *file, int line)
     except_chain_head = data;
 }
 
-void __except_remove(ExceptData *data)
+void __except_remove(ExceptData *data, char *file, int line)
 {
-    if (data == except_chain_head) {
-        except_chain_head = except_chain_head->next;
+    if (data != except_chain_head) {
+        __except_bug(file, line);
     }
+
+    except_chain_head = except_chain_head->next;
 }
 
 Exception *__exception_new(ExceptionType *type, void *data, 
@@ -205,7 +207,7 @@ int exception_get_line(Exception *exception)
     return exception->line;
 }
 
-void __exception_free(Exception *exception)
+void exception_free(Exception *exception)
 {
     free(exception);
 }
@@ -232,6 +234,8 @@ int __exception_is_a(Exception *exception, ExceptionType *type)
 
 void except_throw(Exception *exception)
 {
+    int i;
+
     /* Jump to the first in the chain */
 
     if (except_chain_head == NULL) {
@@ -244,8 +248,22 @@ void except_throw(Exception *exception)
 
     current_exception = exception;
 
-    /* Call the first in the chain */
+    /* Check all of the catch {} blocks in the head to see if one applies
+     * to our exception. */
 
-    longjmp(except_chain_head->jmp_location, 1);
+    for (i=0; i<except_chain_head->num_catch_blocks; ++i) {
+         if (__exception_is_a(exception,
+                              except_chain_head->catch_blocks[i].type)) {
+             /* This catch block catches this kind of exception. */
+
+             longjmp(except_chain_head->catch_blocks[i].jmp_location, 1);
+         }
+    }
+
+    /* None of the catch {} blocks matched.  We must still jump to the
+     * finally {} block to clean up.  The macros make sure that a 
+     * finally {} block is always created. */
+
+    longjmp(except_chain_head->finally_block, 1);
 }
 
