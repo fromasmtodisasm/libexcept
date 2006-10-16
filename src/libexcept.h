@@ -30,6 +30,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
  */
 
+/** @defgroup libexcept libexcept 
+ * @{ */
 
 #ifndef LIBEXCEPT_H
 #define LIBEXCEPT_H
@@ -44,8 +46,30 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define EXCEPT_CHECK_STACK 1
 
+/**
+ * A type of exception.  New exception types should be defined by
+ * assigning an ExceptionType variable using the EXCEPTION_TYPE
+ * macro. For example:
+ *
+ * @code
+ * ExceptionType AppleException = EXCEPTION_TYPE(BaseException);
+ * ExceptionType OrangeException = EXCEPTION_TYPE(BaseException);
+ * ExceptionType SatsumaException = EXCEPTION_TYPE(OrangeException);
+ * @endcode
+ *
+ * @see BaseException
+ */
+
 typedef struct _ExceptionType ExceptionType;
+
+/**
+ * An exception.  Created using @ref exception_new.
+ *
+ * @see exception_new
+ */
+
 typedef struct _Exception Exception;
+
 typedef struct _ExceptData ExceptData;
 
 struct _ExceptData {
@@ -121,7 +145,7 @@ struct _ExceptionType {
         __except_remove(&__except_data);                                \
         if (__except_caught) {                                          \
             /* we caught the exception; now free it */                  \
-            __exception_free(__except_exception);                       \
+            exception_free(__except_exception);                         \
         } else if (__except_throwing) {                                 \
             /* exception was not caught; rethrow it */                  \
             except_throw(__except_exception);                           \
@@ -130,38 +154,144 @@ struct _ExceptionType {
     } 
 
 
-#define __except_assert(condition, file, line)                          \
-    if (!(condition)) {                                                 \
-        except_raise(AssertException,                                   \
-                     "Assertation failed: " file #line);                \
-    }
-
-#define except_assert(condition)                                        \
-    __except_assert((condition), __FILE__, __LINE__)
-
 void __except_add(ExceptData *data, char *file, int line);
 void __except_remove(ExceptData *data);
 Exception *__except_get_current(void);
-void __exception_free(Exception *exception);
 int __exception_is_a(Exception *exception, ExceptionType *type);
 void __except_bug(char *file, int line);
 
 Exception *__exception_new(ExceptionType *type, void *data, 
                            char *file, int line);
 
+/**
+ * Create a new exception.
+ *
+ * @param type   The type of exception to create.
+ * @param data   A pointer to some extra data to include with the
+ *               exception.
+ * @return       A new exception object.
+ */
+
 #define exception_new(type, data)                                       \
       __exception_new(&(type), (data), __FILE__, __LINE__)
+
+/**
+ * Returns the type of an exception.  This is the type specified to 
+ * @ref exception_new.
+ *
+ * @param exception   The exception.
+ * @return            The type of the exception.
+ *
+ * @see exception_new
+ * @see ExceptionType
+ */
+
 ExceptionType *exception_get_type(Exception *exception);
+
+/**
+ * Free an exception.  You should almost never need to call this,
+ * as when an exception is caught in an except_catch block, the 
+ * exception is freed automatically.
+ *
+ * @param exception   The exception to free.
+ */
+
+void exception_free(Exception *exception);
+
+/**
+ * Returns a pointer to extra user-specified data included with an 
+ * exception.  This data is specified when the user creates the
+ * exception (see @ref exception_new).
+ *
+ * @param exception    The exception.
+ * @return             The user-specified data.
+ *
+ * @see exception_new
+ */
+
 void *exception_get_data(Exception *exception);
+
+/**
+ * Returns the name of the source file in which an exception was created.
+ *
+ * @param exception   The exception.
+ * @return            A C string containing the name of the source file
+ *                    in which the exception was created.
+ *
+ * @see exception_get_line
+ */
+
 char *exception_get_file(Exception *exception);
+
+/**
+ * Returns the line number within the source file where an exception was 
+ * created.
+ * 
+ * @param exception   The exception.
+ * @return            The line number of the line where the exception
+ *                    occurred.
+ *
+ * @see exception_get_file
+ */
+
 int exception_get_line(Exception *exception);
 
+/**
+ * Throw an exception.  This function does not return.
+ *
+ * @param exception   The exception to throw.
+ *
+ * @see except_raise
+ */
+
 void except_throw(Exception *exception);
+
+/**
+ * Raise a new exception.  This is equivalent to:
+ *
+ * @code
+ * except_throw(exception_new(type, data));
+ * @endcode
+ *
+ * @param type        The type of exception to raise.
+ * @param data        Extra data to include with the exception.
+ */
+
 #define except_raise(type, data)                                        \
         except_throw(exception_new((type), (data)))
 
+#define __except_assert(condition, file, line)                          \
+    if (!(condition)) {                                                 \
+        except_raise(AssertException,                                   \
+                     "Assertation failed: " file #line);                \
+    }
+
+/**
+ * Checks a given condition, throwing an exception if it is not met.
+ * The exception thrown is of type @ref AssertException.
+ *
+ * @param condition    The condition to test.  If this evaluates to zero
+ *                     (false), an exception is thrown.
+ */
+
+#define except_assert(condition)                                        \
+    __except_assert((condition), __FILE__, __LINE__)
+
+
+
+/**
+ * The root of all exception types.
+ */
+
 extern ExceptionType BaseException;
+
+/**
+ * Exception type thrown when using @ref except_assert.
+ */
+
 extern ExceptionType AssertException;
+
+/** @} */
 
 #endif /* #ifndef LIBEXCEPT_H */
 
