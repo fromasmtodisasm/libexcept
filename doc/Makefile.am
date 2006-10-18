@@ -1,5 +1,5 @@
 
-EXTRA_DIST = html man Doxyfile 
+EXTRA_DIST = html Doxyfile 
 
 html:
 	doxygen
