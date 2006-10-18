@@ -125,8 +125,12 @@ struct _ExceptData {
     jmp_buf try_block;
     ExceptCatchBlock catch_blocks[EXCEPT_MAX_CATCH_BLOCKS];
     jmp_buf finally_block;
-    unsigned char num_catch_blocks;
     ExceptData *next;
+    Exception *caught;
+    unsigned int num_catch_blocks   :5;
+    unsigned int rethrow            :1;
+    unsigned int setup              :1;
+    unsigned int have_finally       :1;
 };
 
 
@@ -134,11 +138,11 @@ struct _ExceptData {
     {                                                                   \
         EXCEPT_LOOP_GUARD_START                                         \
         ExceptData __except_data;                                       \
-        Exception *__except_caught = (void *) 0;                        \
-        int __except_rethrow = 0;                                       \
-        int __except_setup = 1;                                         \
-        int __except_have_finally = 0;                                  \
                                                                         \
+        __except_data.caught = (void *) 0;                              \
+        __except_data.rethrow = 0;                                      \
+        __except_data.setup = 1;                                        \
+        __except_data.have_finally = 0;                                 \
         __except_data.num_catch_blocks = 0;                             \
                                                                         \
         if (setjmp(__except_data.try_block)) {                          \
@@ -149,14 +153,14 @@ struct _ExceptData {
                 }                                                       \
         }                                                               \
                                                                         \
-        if (__except_setup) {                                           \
+        if (__except_data.setup) {                                      \
                 ExceptCatchBlock *block;                                \
                 block = &__except_data.catch_blocks[__except_data.num_catch_blocks]; \
                 block->type = &(extype);                                \
                 ++__except_data.num_catch_blocks;                       \
                 if (setjmp(block->jmp_location)) {                      \
                         Exception *var = __except_get_current();        \
-                        __except_caught = var;                          \
+                        __except_data.caught = var;                     \
                         __except_data.num_catch_blocks = 0;
 
 #define __except_cleanup                                                \
@@ -165,10 +169,10 @@ struct _ExceptData {
          * BUT! if we caught an exception and then threw an exception   \
          * inside the catch {} block, things are complicated.           \
          * If we are rethrowing the same exception, don't free it. */   \
-        if (__except_caught) {                                          \
-                if (!__except_rethrow                                   \
-                 || (__except_caught != __except_get_current())) {      \
-                        exception_free(__except_caught);                \
+        if (__except_data.caught) {                                     \
+                if (!__except_data.rethrow                              \
+                 || (__except_data.caught != __except_get_current())) { \
+                        exception_free(__except_data.caught);           \
                 }                                                       \
         }                                                               \
 
@@ -176,10 +180,10 @@ struct _ExceptData {
                 }                                                       \
         }                                                               \
                                                                         \
-        __except_have_finally = 1;                                      \
+        __except_data.have_finally = 1;                                 \
                                                                         \
-        if (!__except_setup                                             \
-         || (__except_rethrow = setjmp(__except_data.finally_block))) { \
+        if (!__except_data.setup                                        \
+         || (__except_data.rethrow = setjmp(__except_data.finally_block))) { \
                 {                                                       \
                         __except_cleanup
             
@@ -189,18 +193,18 @@ struct _ExceptData {
                                                                         \
         /* if we have no finally {} block, create one to do basic       \
          * cleanup. */                                                  \
-        if (!__except_have_finally) {                                   \
-                if (!__except_setup                                     \
-                 || (__except_rethrow = setjmp(__except_data.finally_block))) {\
+        if (!__except_data.have_finally) {                              \
+                if (!__except_data.setup                                \
+                 || (__except_data.rethrow = setjmp(__except_data.finally_block))) {\
                         __except_cleanup                                \
                 }                                                       \
         }                                                               \
                                                                         \
-        if (__except_setup) {                                           \
-                __except_setup = 0;                                     \
+        if (__except_data.setup) {                                      \
+                __except_data.setup = 0;                                \
                 __except_add(&__except_data, __FILE__, __LINE__);       \
                 longjmp(__except_data.try_block, 1);                    \
-        } else if (__except_rethrow) {                                  \
+        } else if (__except_data.rethrow) {                             \
                 /* if we jumped to a finally block, then                \
                  * we must rethrow the current exception */             \
                 except_throw(__except_get_current());                   \
