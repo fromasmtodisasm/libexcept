@@ -36,6 +36,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef LIBEXCEPT_H
 #define LIBEXCEPT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <setjmp.h>
 
 /* Enabling this checks the stack for corruption as a result of 
@@ -343,6 +347,10 @@ extern ExceptionType BaseException;
 extern ExceptionType AssertException;
 
 /** @} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef LIBEXCEPT_H */
 
