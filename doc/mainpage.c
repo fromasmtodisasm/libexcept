@@ -47,5 +47,16 @@ libexcept.
 There are certain @link limits limitations @endlink to what may be 
 done inside an exceptions block. 
 
+@if Sourceforge
+@subsection Download
+@htmlonly
+
+libexcept can be downloaded from
+<a href="http://sourceforge.net/projects/libexcept">the sourceforge
+project page.</a>
+
+@endhtmlonly
+@endif
+
   */
 

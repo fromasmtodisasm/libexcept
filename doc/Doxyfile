@@ -234,6 +234,7 @@ ALIASES                =
 # documentation sections, marked by \if sectionname ... \endif.
 
 ENABLED_SECTIONS       = 
+#ENABLED_SECTIONS       = Sourceforge
 
 # The MAX_INITIALIZER_LINES tag determines the maximum number of lines 
 # the initial value of a variable or define consist of for it to appear in 
