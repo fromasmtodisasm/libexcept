@@ -80,6 +80,10 @@ libexcept can be downloaded from
 <a href="http://sourceforge.net/projects/libexcept">the sourceforge
 project page.</a>
 
+<div style="float:right">
+  <img src="http://sourceforge.net/sflogo.php?group_id=178198&type=2" border="0">
+</div>
+
 @endhtmlonly
 @endif
 
