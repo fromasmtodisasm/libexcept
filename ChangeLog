@@ -1,0 +1,112 @@
+------------------------------------------------------------------------
+r22 | fraggle | 2006-10-18 20:25:08 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Add license header to documentation files.
+
+------------------------------------------------------------------------
+r21 | fraggle | 2006-10-18 20:24:13 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Add sourceforge download section to front page for website.
+
+------------------------------------------------------------------------
+r20 | fraggle | 2006-10-18 20:05:18 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Ditch man generation - doxygen generates horrible manpages.
+
+------------------------------------------------------------------------
+r19 | fraggle | 2006-10-18 20:01:52 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Add pages from website into documentation.
+
+------------------------------------------------------------------------
+r18 | fraggle | 2006-10-18 19:41:32 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Include manpages in distributed documentation.
+
+------------------------------------------------------------------------
+r17 | fraggle | 2006-10-18 19:32:47 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Put all the exception block local variables in the __except_data structure.  This compacts things and also fixes a bug with stack corruption when optimisation is enabled (?)
+
+------------------------------------------------------------------------
+r16 | fraggle | 2006-10-18 19:07:15 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Set the doxygen output directory properly.
+
+------------------------------------------------------------------------
+r15 | fraggle | 2006-10-18 19:03:42 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Add autotools build.
+
+------------------------------------------------------------------------
+r14 | fraggle | 2006-10-18 18:42:47 +0100 (Wed, 18 Oct 2006) | 2 lines
+
+Add C++ header guards.
+
+------------------------------------------------------------------------
+r13 | fraggle | 2006-10-16 22:39:34 +0100 (Mon, 16 Oct 2006) | 2 lines
+
+Replace simple test program with some proper unit tests.
+
+------------------------------------------------------------------------
+r12 | fraggle | 2006-10-16 21:46:14 +0100 (Mon, 16 Oct 2006) | 2 lines
+
+Rejig everything, using multiple setjmps for the different blocks.  This is much more consistent.
+
+------------------------------------------------------------------------
+r11 | fraggle | 2006-10-16 19:55:15 +0100 (Mon, 16 Oct 2006) | 2 lines
+
+Add doxygen Doxyfile and some documentation.
+
+------------------------------------------------------------------------
+r10 | fraggle | 2006-10-16 18:37:10 +0100 (Mon, 16 Oct 2006) | 2 lines
+
+Use some more generic exception names in the test program.
+
+------------------------------------------------------------------------
+r9 | fraggle | 2006-10-16 18:36:36 +0100 (Mon, 16 Oct 2006) | 2 lines
+
+Add copyright notices and the ability to disable checking of the stack (for extra performance).
+
+------------------------------------------------------------------------
+r8 | fraggle | 2006-09-28 20:42:21 +0100 (Thu, 28 Sep 2006) | 2 lines
+
+Add temporary Makefile.
+
+------------------------------------------------------------------------
+r7 | fraggle | 2006-09-28 20:38:43 +0100 (Thu, 28 Sep 2006) | 2 lines
+
+Add missing function declaration.
+
+------------------------------------------------------------------------
+r6 | fraggle | 2006-09-28 20:35:15 +0100 (Thu, 28 Sep 2006) | 2 lines
+
+Newer version of test program.
+
+------------------------------------------------------------------------
+r5 | fraggle | 2006-09-28 20:32:55 +0100 (Thu, 28 Sep 2006) | 2 lines
+
+Fix indentation.
+
+------------------------------------------------------------------------
+r4 | fraggle | 2006-09-28 20:30:12 +0100 (Thu, 28 Sep 2006) | 2 lines
+
+Remove apostrophe from compiler warning.
+
+------------------------------------------------------------------------
+r3 | fraggle | 2006-09-28 20:29:11 +0100 (Thu, 28 Sep 2006) | 3 lines
+
+More up to date version - add exception hierarchies, change structure
+names to Gtk-style, guard against use of return/goto/break etc.
+
+------------------------------------------------------------------------
+r2 | fraggle | 2006-09-28 20:26:33 +0100 (Thu, 28 Sep 2006) | 2 lines
+
+Initial import.
+
+------------------------------------------------------------------------
+r1 | fraggle | 2006-09-28 18:24:59 +0100 (Thu, 28 Sep 2006) | 2 lines
+
+Add normal svn directories.
+
+------------------------------------------------------------------------

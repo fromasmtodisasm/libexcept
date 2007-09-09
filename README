@@ -1,0 +1,14 @@
+
+libexcept is an exceptions framework for the C programming language.
+
+C suffers from a lack of exception handling as part of the language. The 
+most common way to deal with errors, for example, is for functions to 
+return a status code indicating whether the function succeeded. In large 
+projects, as much as 30-50% of code may be dedicated to checking status 
+code values in order to deal with errors.
+
+libexcept implements exceptions in C, providing the same kind of 
+functionality that Java and other modern high-level languages provide. 
+It is licensed under the MIT license, which means that it may be freely
+used in Free Software and proprietary software without restriction.
+
