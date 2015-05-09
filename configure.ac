@@ -1,4 +1,4 @@
-AC_INIT(libexcept, 1.0.0, fraggle@users.sourceforge.net, libexcept)
+AC_INIT(libexcept, 1.0.0, fraggle@gmail.com, libexcept)
 AC_CONFIG_AUX_DIR(autotools)
 
 AM_INIT_AUTOMAKE($PACKAGE_TARNAME, $PACKAGE_VERSION, no-define)

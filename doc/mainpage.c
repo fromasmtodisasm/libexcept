@@ -72,13 +72,13 @@ libexcept.
 There are certain @link limits limitations @endlink to what may be 
 done inside an exceptions block. 
 
-@if Sourceforge
+@if Website
 @subsection Download
 @htmlonly
 
 libexcept can be downloaded from
-<a href="http://sourceforge.net/projects/libexcept">the sourceforge
-project page.</a>
+<a href="https://github.com/fragglet/libexcept/releases">the GitHub
+releases page.</a>
 
 @endhtmlonly
 @endif
